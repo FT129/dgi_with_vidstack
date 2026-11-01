@@ -1,5 +1,5 @@
 // Redesigned by telegram.dog/TheFirstSpeedster at https://www.npmjs.com/package/@googledrive/index
-// Updated with Vidstack Player (Native Chromecast, AirPlay, and absolute-path VTT subtitles)
+// Updated with Vidstack Player (Native Chromecast, AirPlay, and absolute-path VTT subtitles inside media-provider)
 function init() {
     document.siteName = $('title').html();
     var html = `<header>
@@ -417,10 +417,8 @@ function list(path) {
 function append_files_to_list(path, files) {
     var $list = $('#list');
     var is_lastpage_loaded = null === $list.data('nextPageToken');
-    var is_firstpage = '0' == $list.data('curPageIndex');
 
     var html = "";
-    let targetFiles = [];
     for (var i in files) {
         var item = files[i];
         var ep = item.name + '/';
@@ -564,7 +562,7 @@ function append_search_result_to_list(files) {
         item['modifiedTime'] = utc2delhi(item['modifiedTime']);
         item['size'] = formatFileSize(item['size']);
         if (item['mimeType'] == 'application/vnd.google-apps.folder') {
-            html += `<a style="color: ${UI.folder_text_color};" ${UI.search_all_drives ? `href="https://drive.google.com/drive/folders/` + item['id'] + `" target="_blank"` : `onclick="onSearchResultItemClick(this)" data-bs-toggle="modal" data-bs-target="#SearchModel" id="` + item['id'] + `"`} class="list-group-item list-group-item-action"><svg width="1.5em" height="1.5em" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><path fill="#ffd869" d="M21.586 14.414l3.268-3.268C24.947 11.053 25.074 11 25.207 11H43c1.105 0 2 .895 2 2v26c0 1.105-.895 2-2 2H5c-1.105 0-2-.895-2-2V15.5C3 15.224 3.224 15 3.5 15h16.672c1.53 0 2.039-.211 2.414-.586z"/></svg> ${item.name} ${UI.display_time ? `<span class="badge bg-info float-end"> ` + item['modifiedTime'] + ` </span>` : ``}</a>`;
+            html += `<a style="color: ${UI.folder_text_color};" ${UI.search_all_drives ? `href="https://drive.google.com/drive/folders/` + item['id'] + `" target="_blank"` : `onclick="onSearchResultItemClick(this)" data-bs-toggle="modal" data-bs-target="#SearchModel" id="` + item['id'] + `"`} class="list-group-item list-group-item-action"><svg width="1.5em" height="1.5em" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><path fill="#ffd869" d="M21.586 14.414l3.268-3.268C24.947 11.053 25.074 11 25.207 11H43c1.105 0 2 .895 2 2v26c0 1.105-.895 2-2 2H5c-1.105 0-2-.895-2-2V15.5C3,15.224,3.224,15,3.5,15h16.672c1.53 0 2.039-.211 2.414-.586z"/></svg> ${item.name} ${UI.display_time ? `<span class="badge bg-info float-end"> ` + item['modifiedTime'] + ` </span>` : ``}</a>`;
         } else {
             var pn = '/' + cur + ':/' + item.name + '?a=view';
             html += `<a style="color: ${UI.css_a_tag_color};" ${UI.search_all_drives ? `href="https://drive.google.com/file/d/` + item['id'] + `/view" target="_blank"` : `onclick="onSearchResultItemClick(this)" data-bs-toggle="modal" data-bs-target="#SearchModel" id="` + item['id'] + `"`} gd-type="${item.mimeType}" class="list-group-item list-group-item-action">`;
@@ -636,7 +634,6 @@ function file(path) {
 
 function file_others(path) {
     var name = path.split('/').pop();
-    var decodename = unescape(name);
     var url = UI.second_domain_for_dl ? UI.downloaddomain + path : window.location.origin + path;
     $.post("", function(data) {
         try {
@@ -706,7 +703,7 @@ function file_code(path) {
     });
 }
 
-// VIDSTACK IMPLEMENTATION FOR VIDEO
+// VIDSTACK IMPLEMENTATION FOR VIDEO (WITH TRACKS INSIDE MEDIA-PROVIDER)
 function file_video(path) {
     var name = path.split('/').pop();
     var decodename = unescape(name);
@@ -715,7 +712,7 @@ function file_video(path) {
     var url_without_https = url.replace(/^(https?:|)\/\//, '');
     var url_base64 = btoa(url);
 
-    // Build base URL without extension to reliably create absolute URLs for all subtitles
+    // Build absolute base URL without extension to reliably create absolute URLs for all subtitles
     var urlBase = url.substring(0, url.lastIndexOf('.'));
 
     $.post("", function(data) {
@@ -730,23 +727,23 @@ function file_video(path) {
   <div class="text-center">
   <div class="${UI.file_view_alert_class}" id="file_details" role="alert">${obj.name}<br>${size}</div>
 
-  <media-player title="${decodename}" src="${url}" poster="${poster}" crossOrigin="anonymous" playsinline style="width: 100%; aspect-ratio: 16/9;">
-    <media-provider></media-provider>
-    
-    <!-- Absolute Subtitle URLs (Crucial for Chromecast & WebVTT) -->
-    <track src="${urlBase}.en.vtt" kind="subtitles" label="English" srclang="en" default />
-    <track src="${urlBase}.vtt" kind="subtitles" label="Default" srclang="en" />
-    <track src="${urlBase}.hi.vtt" kind="subtitles" label="Hindi" srclang="hi" />
-    <track src="${urlBase}.ru.vtt" kind="subtitles" label="Russian" srclang="ru" />
-    <track src="${urlBase}.ml.vtt" kind="subtitles" label="Malayalam" srclang="ml" />
-    <track src="${urlBase}.ko.vtt" kind="subtitles" label="Korean" srclang="ko" />
-    <track src="${urlBase}.ja.vtt" kind="subtitles" label="Japanese" srclang="ja" />
-    <track src="${urlBase}.id.vtt" kind="subtitles" label="Indonesian" srclang="id" />
-    <track src="${urlBase}.de.vtt" kind="subtitles" label="German" srclang="de" />
-    <track src="${urlBase}.fr.vtt" kind="subtitles" label="French" srclang="fr" />
-    <track src="${urlBase}.zh.vtt" kind="subtitles" label="Chinese" srclang="zh" />
-    <track src="${urlBase}.ar.vtt" kind="subtitles" label="Arabic" srclang="ar" />
-    <track src="${urlBase}.${UI.custom_srt_lang}.vtt" kind="subtitles" label="${UI.custom_srt_lang}" srclang="${UI.custom_srt_lang}" />
+  <media-player title="${decodename}" src="${url}" poster="${poster}" crossOrigin playsinline style="width: 100%; aspect-ratio: 16/9;">
+    <media-provider>
+      <!-- Vidstack requires track elements directly inside media-provider -->
+      <track src="${urlBase}.en.vtt" kind="subtitles" label="English" srclang="en" default />
+      <track src="${urlBase}.vtt" kind="subtitles" label="Default" srclang="en" />
+      <track src="${urlBase}.hi.vtt" kind="subtitles" label="Hindi" srclang="hi" />
+      <track src="${urlBase}.ru.vtt" kind="subtitles" label="Russian" srclang="ru" />
+      <track src="${urlBase}.ml.vtt" kind="subtitles" label="Malayalam" srclang="ml" />
+      <track src="${urlBase}.ko.vtt" kind="subtitles" label="Korean" srclang="ko" />
+      <track src="${urlBase}.ja.vtt" kind="subtitles" label="Japanese" srclang="ja" />
+      <track src="${urlBase}.id.vtt" kind="subtitles" label="Indonesian" srclang="id" />
+      <track src="${urlBase}.de.vtt" kind="subtitles" label="German" srclang="de" />
+      <track src="${urlBase}.fr.vtt" kind="subtitles" label="French" srclang="fr" />
+      <track src="${urlBase}.zh.vtt" kind="subtitles" label="Chinese" srclang="zh" />
+      <track src="${urlBase}.ar.vtt" kind="subtitles" label="Arabic" srclang="ar" />
+      <track src="${urlBase}.${UI.custom_srt_lang}.vtt" kind="subtitles" label="${UI.custom_srt_lang}" srclang="${UI.custom_srt_lang}" />
+    </media-provider>
 
     <!-- Vidstack Default UI Video Layout with Cast and AirPlay -->
     <media-video-layout></media-video-layout>
