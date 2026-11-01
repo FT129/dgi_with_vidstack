@@ -727,9 +727,8 @@ function file_video(path) {
   <div class="text-center">
   <div class="${UI.file_view_alert_class}" id="file_details" role="alert">${obj.name}<br>${size}</div>
 
-  <media-player title="${decodename}" src="${url}" poster="${poster}" crossOrigin playsinline style="width: 100%; aspect-ratio: 16/9;">
+<media-player title="${decodename}" src="${url}" poster="${poster}" crossorigin playsinline style="width: 100%; aspect-ratio: 16/9;">
     <media-provider>
-      <!-- Vidstack requires track elements directly inside media-provider -->
       <track src="${urlBase}.en.vtt" kind="subtitles" label="English" srclang="en" default />
       <track src="${urlBase}.vtt" kind="subtitles" label="Default" srclang="en" />
       <track src="${urlBase}.hi.vtt" kind="subtitles" label="Hindi" srclang="hi" />
@@ -745,7 +744,7 @@ function file_video(path) {
       <track src="${urlBase}.${UI.custom_srt_lang}.vtt" kind="subtitles" label="${UI.custom_srt_lang}" srclang="${UI.custom_srt_lang}" />
     </media-provider>
 
-    <!-- Vidstack Default UI Video Layout with Cast and AirPlay -->
+    <!-- Vidstack Video Layout -->
     <media-video-layout></media-video-layout>
   </media-player>
 
